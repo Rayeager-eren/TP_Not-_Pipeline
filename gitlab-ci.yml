@@ -1,0 +1,27 @@
+stages:
+  - build
+  - deploy
+
+build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - echo "Build des images et construction des container"
+    - docker-compose -f docker-compose-build.yaml build --parallel
+    - echo "Docker compose des images"
+    - docker-compose up -d
+    - echo "Rendre le Fichier sh executable"
+    - chmod +x docker-push.sh
+    - echo "Push des imges dans Docker Hub"
+    - ./docker-push.sh
+
+
+deploy:
+  image: docker:latest
+  stage: deploy
+  services:
+    - docker:dind
+  script:
+    - docker-compose down
